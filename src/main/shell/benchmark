@@ -1,0 +1,62 @@
+#!/bin/bash
+set -euo pipefail
+
+# ---- CONFIG ----
+JAR="build/libs/test-1.0.jar"
+MAIN_CLASS="messaging.Main"
+ARGS=""   # put extra args if needed
+PERF_OUT="perf.data"
+PIDSTAT_LOG="pidstat.log"
+PS_LOG="ps_threads.log"
+
+# ---- RUN PROGRAM ----
+echo "[INFO] Starting Java program..."
+java -cp "$JAR" "$MAIN_CLASS" $ARGS &
+APP_PID=$!
+echo "[INFO] App PID = $APP_PID"
+
+# ---- START PERF ----
+echo "[INFO] Starting perf record..."
+perf record -o "$PERF_OUT" -p $APP_PID --call-graph dwarf &
+PERF_PID=$!
+
+# ---- START PIDSTAT ----
+if command -v pidstat &>/dev/null; then
+    echo "[INFO] Starting pidstat logging..."
+    pidstat -wt -p $APP_PID 1 > "$PIDSTAT_LOG" &
+    PIDSTAT_PID=$!
+else
+    echo "[WARN] pidstat not found. Skipping pidstat logging."
+    PIDSTAT_PID=""
+fi
+
+# ---- THREAD SNAPSHOT LOOP ----
+(
+    while kill -0 $APP_PID 2>/dev/null; do
+        ps -L -p $APP_PID -o pid,tid,psr,comm >> "$PS_LOG"
+        echo "----" >> "$PS_LOG"
+        sleep 1
+    done
+) &
+PS_SAMPLER_PID=$!
+
+# ---- WAIT FOR PROGRAM ----
+wait $APP_PID
+echo "[INFO] Program finished."
+
+# ---- STOP PERF ----
+echo "[INFO] Stopping perf record..."
+kill -INT $PERF_PID
+wait $PERF_PID || true
+
+# ---- STOP PIDSTAT ----
+if [ -n "$PIDSTAT_PID" ]; then
+    kill $PIDSTAT_PID 2>/dev/null || true
+fi
+
+# ---- STOP PS SAMPLER ----
+kill $PS_SAMPLER_PID 2>/dev/null || true
+
+echo "[INFO] Perf data: $PERF_OUT"
+echo "[INFO] pidstat log: $PIDSTAT_LOG"
+echo "[INFO] ps -L log: $PS_LOG"
