@@ -4,14 +4,14 @@ A simple application to test performance of a Ring Buffer without locking.
 ## Requirements
 1. Java-17
 2. Python-3
-3. A native linux env.
+3. A native linux env (or WSL-2 in windows)
 
 ## How to run
 1. Build the java project
 ```bash
 ./gradlew :clean :build :fatJar
 ```
-2. Bring the benchmark script to the root folder of the repo
+2. Bring the benchmark script to the root folder in the repo
 ```bash
 cp src/main/shell/benchmark .
 ```
@@ -57,6 +57,7 @@ python src/main/python/plot.py <path_to_latencies.csv>
 4. EpsilonGC
 5. Warmup
 6. Message pooling
+7. Message padding to avoid false sharing
 
 ## More Things to Try
 1. Isolate cpus (try only after 1st question is answered)
