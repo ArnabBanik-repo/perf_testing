@@ -44,12 +44,6 @@ at the generated graph of the latencies, run the following**:
 python src/main/python/plot.py <path_to_latencies.csv>
 ```
 
-## Questions
-1. Reason for a lot of voluntary preemptions of the Producer
-2. Two peaks in the first 500k messages
-3. On increase of no. of messages in message pool, avg latency increases
-4. JVM settings
-
 ## Currently implemented
 1. Non-blocking ring buffer
 2. Busy spinning
@@ -68,7 +62,25 @@ Average Latency: 0.4546796 us
 99th Percentile Latency: 1 us
 99.99th Percentile Latency: 3 us
 ```
+
+```
+Producer: Thread-0 native tid=6290
+Consumer: Thread-1 native tid=6291
+
+07:52:10 PM IST   UID      TGID       TID   cswch/s nvcswch/s  Command
+07:52:13 PM IST  1000         -      6290    233.00      2.00  |__Thread-0
+07:52:14 PM IST  1000         -      6290    225.00     46.00  |__Thread-0
+07:52:13 PM IST  1000         -      6291      5.00      0.00  |__Thread-1
+07:52:14 PM IST  1000         -      6291     35.00      2.00  |__Thread-1
+```
+
 ![Latency Plot](./screenshots/latency_plot.png)
+
+## Questions
+1. Reason for a lot of voluntary preemptions of the Producer
+2. Two peaks in the first 500k messages
+3. On increase of no. of messages in message pool, avg latency increases
+4. JVM settings
 
 ## More Things to Try
 1. Isolate cpus (try only after 1st question is answered)
