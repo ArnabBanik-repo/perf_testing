@@ -6,15 +6,29 @@ JAR="build/libs/test-1.0.jar"
 MAIN_CLASS="messaging.Main"
 ARGS=""
 
-JVM_ARGS="-DconfigPath=config.txt -Xms4g -Xmx8g -XX:+UnlockDiagnosticVMOptions -XX:GuaranteedSafepointInterval=100000000 -Xbatch -XX:+TieredCompilation -XX:+AlwaysPreTouch -XX:CompileThreshold=10000 -XX:-BackgroundCompilation -Xlog:safepoint=info,handshake=info,gc*=off,os+thread=off -Xlog:safepoint+stats=trace -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC"
-
 PERF_OUT="perf.data"
 PIDSTAT_LOG="pidstat.log"
 PS_LOG="ps_threads.log"
 
 # ---- RUN PROGRAM ----
 echo "[INFO] Starting Java program..."
-java -cp "$JAR" "$JVM_ARGS" "$MAIN_CLASS" $ARGS &
+java \
+  -Xms4g \
+  -Xmx8g \
+  -XX:+UnlockDiagnosticVMOptions \
+  -XX:GuaranteedSafepointInterval=100000000 \
+  -Xbatch \
+  -XX:+TieredCompilation \
+  -XX:+AlwaysPreTouch \
+  -XX:CompileThreshold=10000 \
+  -XX:-BackgroundCompilation \
+  -Xlog:safepoint=info,handshake=info,gc*=off,os+thread=off \
+  -Xlog:safepoint+stats=trace \
+  -XX:+UnlockExperimentalVMOptions \
+  -XX:+UseEpsilonGC \
+  -DconfigPath=config.txt \
+  -cp build/libs/test-1.0.jar \
+  messaging.Main &
 APP_PID=$!
 echo "[INFO] App PID = $APP_PID"
 
