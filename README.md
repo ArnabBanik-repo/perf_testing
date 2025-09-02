@@ -57,7 +57,7 @@ python src/main/python/plot.py <path_to_latencies.csv>
 4. EpsilonGC
 5. Warmup
 6. Message pooling
-7. Message padding to avoid false sharing
+7. Cache line padding to avoid false sharing between head & tail of Ring Buffer
 
 ## Current Results
 ```bash
