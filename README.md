@@ -59,5 +59,16 @@ python src/main/python/plot.py <path_to_latencies.csv>
 6. Message pooling
 7. Message padding to avoid false sharing
 
+## Current Results
+```bash
+Processed 5000000 messages.
+Minimum Latency: 0 us
+Maximum Latency: 5009 us
+Average Latency: 0.4546796 us
+99th Percentile Latency: 1 us
+99.99th Percentile Latency: 3 us
+```
+![Latency Plot](./screenshots/latency_plot.png)
+
 ## More Things to Try
 1. Isolate cpus (try only after 1st question is answered)
