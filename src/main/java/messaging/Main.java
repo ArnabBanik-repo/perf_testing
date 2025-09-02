@@ -61,27 +61,25 @@ public class Main {
 
         System.out.println("\n************ Creating Buffers ************");
         RingBuffer buffer = new SPSCRingBuffer(spscBufferSize);
-//        RingBuffer performanceBuffer = new SPSCRingBuffer(perfBufferSize);
         MessagePool messagePool = new MessagePool(messagePoolSize);
 
         System.out.println("\n************ Creating Threads ************");
         Producer producer = new Producer(buffer, numMessage, numWarmUpMessage, producerCore, messagePool);
         Consumer consumer = new Consumer(buffer, numMessage, numWarmUpMessage, consumerCore, messagePool);
-//        PerformanceTester performanceTester = new PerformanceTester(performanceBuffer, numMessage);
 
         Thread t1 = new Thread(producer);
         Thread t2 = new Thread(consumer);
-//        Thread t3 = new Thread(performanceTester);
+
+        System.out.println("\n************ Calling GC ************");
+        System.gc();
 
         System.out.println("\n************ Starting Threads ************");
         t1.start();
         t2.start();
-//        t3.start();
 
         try {
             t1.join();
             t2.join();
-//            t3.join();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

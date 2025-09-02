@@ -67,7 +67,7 @@ public class Consumer implements Runnable {
 
     public void writeToCsv() {
         try (FileWriter writer = new FileWriter("latencies.csv")) {
-            writer.write("MessageIndex,Latency(ns)\n");
+            writer.write("MessageIndex,Latency(us)\n");
             for (int i = 0; i < latencies.size(); i++) {
                 writer.write(i + "," + latencies.get(i) + "\n");
             }

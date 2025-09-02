@@ -11,35 +11,20 @@ repositories {
 
 dependencies {
     implementation 'net.openhft:chronicle-queue:5.27ea6'
-    implementation 'com.google.protobuf:protobuf-java:4.31.1'
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
 }
 
 task fatJar(type: Jar) {
     group = 'build'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    // Inherit manifest attributes from the default 'jar' task if needed
     manifest.from jar.manifest
 
-
-    // Include all compiled classes from the main source set
     from sourceSets.main.output
 
-    // Include all dependencies from the runtimeClasspath configuration
-    // zipTree(it) expands JARs into their individual class files, merging them
-    // into the fat JAR. Simply 'it' would copy the dependency JARs as-is
-    // inside the fat JAR.
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 
-    // Exclude signature files to avoid conflicts when merging JARs
     exclude 'META-INF/*.SF'
     exclude 'META-INF/*.DSA'
     exclude 'META-INF/*.RSA'
-}
-
-test {
-    useJUnitPlatform()
 }

@@ -4,21 +4,20 @@ set -euo pipefail
 # ---- CONFIG ----
 JAR="build/libs/test-1.0.jar"
 MAIN_CLASS="messaging.Main"
-ARGS=""   # put extra args if needed
+ARGS=""
+
+JVM_ARGS="-DconfigPath=config.txt -Xms4g -Xmx8g -XX:+UnlockDiagnosticVMOptions -XX:GuaranteedSafepointInterval=100000000 -Xbatch -XX:+TieredCompilation -XX:+AlwaysPreTouch -XX:CompileThreshold=10000 -XX:-BackgroundCompilation -Xlog:safepoint=info,handshake=info,gc*=off,os+thread=off -Xlog:safepoint+stats=trace -XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC"
+
 PERF_OUT="perf.data"
 PIDSTAT_LOG="pidstat.log"
 PS_LOG="ps_threads.log"
 
 # ---- RUN PROGRAM ----
 echo "[INFO] Starting Java program..."
-java -cp "$JAR" "$MAIN_CLASS" $ARGS &
+java -cp "$JAR" "$JVM_ARGS" "$MAIN_CLASS" $ARGS &
 APP_PID=$!
 echo "[INFO] App PID = $APP_PID"
 
-# ---- START PERF ----
-echo "[INFO] Starting perf record..."
-perf record -o "$PERF_OUT" -p $APP_PID --call-graph dwarf &
-PERF_PID=$!
 
 # ---- START PIDSTAT ----
 if command -v pidstat &>/dev/null; then
@@ -44,11 +43,6 @@ PS_SAMPLER_PID=$!
 wait $APP_PID
 echo "[INFO] Program finished."
 
-# ---- STOP PERF ----
-echo "[INFO] Stopping perf record..."
-kill -INT $PERF_PID
-wait $PERF_PID || true
-
 # ---- STOP PIDSTAT ----
 if [ -n "$PIDSTAT_PID" ]; then
     kill $PIDSTAT_PID 2>/dev/null || true
@@ -57,6 +51,5 @@ fi
 # ---- STOP PS SAMPLER ----
 kill $PS_SAMPLER_PID 2>/dev/null || true
 
-echo "[INFO] Perf data: $PERF_OUT"
 echo "[INFO] pidstat log: $PIDSTAT_LOG"
 echo "[INFO] ps -L log: $PS_LOG"
